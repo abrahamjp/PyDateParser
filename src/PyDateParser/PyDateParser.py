@@ -3,11 +3,11 @@ import operator
 from datetime import datetime, timedelta, tzinfo
 
 """
-    Parses string and returns datetime in UTC
+    Parses string and returns datetime in UTC by default
 """
 
 
-class MyDateParser:
+class PyDateParser:
     def __init__(self):
 
         # this will hold the relative datetime value
@@ -55,8 +55,6 @@ class MyDateParser:
     """
 
     def parse(self, date_string, relative_datetime=None):
-
-        self._original__date_string = date_string
 
         if relative_datetime is None:
             self.__relative_datetime = datetime.utcnow()
@@ -193,18 +191,17 @@ class MyDateParser:
     # {'operator': '-', 'operand1': {'type': 'simple', 'value': 'now'}, 'operand2': {'type': 'complex', 'value': {'number': '1', 'timeframe': 'd'}}}
     def __process_tokens(self, tokens):
 
-        global operator
         ops = {"+": operator.add,
                "-": operator.sub}
 
         # means the token contain two operands and one operator
         if "operator" in tokens:
-            operator = tokens["operator"]
+            operator_val = tokens["operator"]
 
             operand1 = self.__process_operand(tokens["operand1"])
             operand2 = self.__process_operand(tokens["operand2"])
 
-            return ops[operator](operand1, operand2)
+            return ops[operator_val](operand1, operand2)
 
         # means the token contain only single operand
         elif "operand1" in tokens:
@@ -235,10 +232,10 @@ class MyDateParser:
 
             complex_vals = {
                 "s": timedelta(seconds=val),
-                "m": timedelta(seconds=60 * val),
-                "h": timedelta(seconds=3600 * val),
+                "m": timedelta(minutes=val),
+                "h": timedelta(hours=val),
                 "d": timedelta(days=val),
-                "w": timedelta(days=7 * val)
+                "w": timedelta(weeks=val)
             }
 
             return complex_vals[operand["value"]["timeframe"]]
