@@ -32,16 +32,16 @@ class PyDateParser:
         self.__regexp_syntax = self.__regexp_operators + self.__regexp_number + \
                                self.__regexp_timeframe
 
-        self.__sample_pattern = "Syntax: enums | enums[+|-] Int [s|m|h|w] \r" \
+        self.__sample_pattern = "Syntax: Keywords | [+|-] Float [s|m|h|w] \r" \
                                 "s = seconds, m = minute, h = hour, w = week \r" \
-                                "\r Supported enums \r" \
+                                "\r Supported Keywords \r" \
                                 "-----------------------\r" \
                                 "now = current date time, \r" \
                                 "yday = yesterday, \r" \
                                 "tmrw = tomorrow, \r" \
                                 "dby = day before yesterday, \r" \
                                 "dat = day after yesterday \r\r" \
-                                "Example: now, yday, tmrw, now-1d, now+1d, 1d, yday-1d"
+                                "Example: now, yday, tmrw, -1d, 1d, 1d, -1d"
 
     """
     Supported values
@@ -50,9 +50,9 @@ class PyDateParser:
 
     now = current date time
 
-    now-1d = current date time minus 1 day
+    -1d = current date time minus 1 day
 
-    now+1d = current date time plus 1 day
+    1d = current date time plus 1 day
 
     """
 
@@ -60,6 +60,8 @@ class PyDateParser:
 
         if relative_datetime is None:
             self.__relative_datetime = datetime.utcnow()
+        else:
+            self.__relative_datetime = relative_datetime
 
         date_string = self.__cleanup_string(date_string)
 
