@@ -46,17 +46,21 @@ val = dt.parse("3d")
 # Add 4 weeks to current datetime and returns new date time in UTC
 val = dt.parse("4w")
 
+# Add 1 hour to current date time
+val = dt.parse("1h", relative_datetime=datetime.now())
+
+
 #Keywords
 # Returns current date time in UTC
 val = dt.parse("now")
 
-# Returns yeserdays date time in UTC
+# Returns yesterdays date time in UTC
 val = dt.parse("yday")
 
-# Returns tomorrows date time in UTC
+# Returns tomorrow's date time in UTC
 val = dt.parse("tmrw")
 
-# Returns 'day after tomorows' (dat) date time in UTC
+# Returns 'day after tomorrow' (dat) date time in UTC
 val = dt.parse("dat")
 
 # Returns 'day before yesterday' (dby) date time in UTC
