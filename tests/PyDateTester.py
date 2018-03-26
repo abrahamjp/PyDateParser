@@ -28,6 +28,22 @@ class PyDateParseKeywordTest(unittest.TestCase):
         fail_msg = "test_utc_now parsed_datetime:{} actual_datetime: {} ".format(parsed_datetime, actual_datetime)
         return self.assertEqual(str(parsed_datetime), str(actual_datetime), fail_msg)
 
+    def test_keyword_present_date_time_now(self):
+        now = datetime.now()
+        val = self.__obj.parse("now", relative_datetime=now)
+
+
+        parsed_datetime = datetime(year=val.year, month=val.month, day=val.day, \
+                                   hour=val.hour, minute=val.minute, second=val.second, microsecond=0)
+
+        actual_datetime = datetime(year=now.year, month=now.month, day=now.day, \
+                                   hour=now.hour, minute=now.minute, second=now.second, microsecond=0)
+
+        fail_msg = "test_keyword_present_date_time_now parsed_datetime:{} actual_datetime: {} ".format(parsed_datetime,
+                                                                                                       actual_datetime)
+        return self.assertEqual(str(parsed_datetime), str(actual_datetime), fail_msg)
+
+
     def test_keyword_tmrw(self):
         val = self.__obj.parse("tmrw")
         now = datetime.utcnow() + timedelta(days=1)
@@ -102,6 +118,22 @@ class PyDateParseAddTimeTest(unittest.TestCase):
                                    hour=now.hour, minute=now.minute, second=now.second, microsecond=0)
 
         fail_msg = "test_utc_add_second parsed_datetime:{} actual_datetime: {} ".format(
+            parsed_datetime, actual_datetime)
+
+        return self.assertEqual(str(parsed_datetime), str(actual_datetime), fail_msg)
+
+    def test_current_date_time_add_second(self):
+        now = datetime.now() + timedelta(seconds=1)
+        val = self.__obj.parse("1s", relative_datetime=datetime.now())
+
+
+        parsed_datetime = datetime(year=val.year, month=val.month, day=val.day, \
+                                   hour=val.hour, minute=val.minute, second=val.second, microsecond=0)
+
+        actual_datetime = datetime(year=now.year, month=now.month, day=now.day, \
+                                   hour=now.hour, minute=now.minute, second=now.second, microsecond=0)
+
+        fail_msg = "test_current_date_time_add_second parsed_datetime:{} actual_datetime: {} ".format(
             parsed_datetime, actual_datetime)
 
         return self.assertEqual(str(parsed_datetime), str(actual_datetime), fail_msg)
@@ -231,6 +263,21 @@ class PyDateParseSubtractTimeTest(unittest.TestCase):
 
     def tearDown(self):
         self.__obj = None
+
+    def test_present_dateime_time_subtract_second(self):
+        val = self.__obj.parse("-1s", relative_datetime=datetime.now())
+        now = datetime.now() + timedelta(seconds=-1)
+
+        parsed_datetime = datetime(year=val.year, month=val.month, day=val.day, \
+                                   hour=val.hour, minute=val.minute, second=val.second, microsecond=0)
+
+        actual_datetime = datetime(year=now.year, month=now.month, day=now.day, \
+                                   hour=now.hour, minute=now.minute, second=now.second, microsecond=0)
+
+        fail_msg = "test_present_dateime_time_subtract_second parsed_datetime:{} actual_datetime: {} ".format(
+            parsed_datetime, actual_datetime)
+
+        return self.assertEqual(str(parsed_datetime), str(actual_datetime), fail_msg)
 
     def test_utc_subtract_second(self):
         val = self.__obj.parse("-1s")
