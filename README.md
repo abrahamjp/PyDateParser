@@ -1,10 +1,9 @@
 # PyDateParser
-Simple date parser Python package, to transform datetime inputs in a human friendly way. 
+Simple date parser Python package, for receiving datetime in a human friendly manner. 
 For instance, if you want users to pass yesterdays datetime, they can specify 'yday' instead of 
 explicitly specifying yesterdays date and time.
 
-Supports, adding and subtracting seconds, minutes, hours, days and weeks from current UTC date and time. 
-In case if you want to use a different date time reference point other than UTC, you even can pass the custom
+It also supports, adding and subtracting seconds, minutes, hours, days and weeks from current UTC date and time; and in case if you want to use a different date time reference other than UTC, you even can pass it as a custom
 date time value.
 
 **Syntax:**
@@ -25,25 +24,25 @@ import PyDateParser
 
 dt = new DateParser()
 
-# Add five second to current datetime and returns new date time in UTC
+# Add five second to current UTC datetime and return new date time
 val = dt.parse("5s") 
 
-# Add five and half seconds to current datetime and returns new date time in UTC
+# Add five and half seconds to current UTC datetime and return new date time
 val = dt.parse("5.5s") 
 
-# Subtract five and half seconds to current datetime and returns new date time in UTC
+# Subtract five and half seconds from current UTC datetime and return new date time
 val = dt.parse("-5.5s") 
 
-# Add 10 minutes to current datetime and returns new date time in UTC
+# Add 10 minutes to current UTC datetime and return new date time
 val = dt.parse("10s") 
 
-# Add 2 hours to current datetime and returns new date time in UTC
+# Add 2 hours to current UTC datetime and returns new date time
 val = dt.parse("2h") 
 
-# Add 3 days to current datetime and returns new date time in UTC
+# Add 3 days to current UTC datetime and returns new date time
 val = dt.parse("3d")
 
-# Add 4 weeks to current datetime and returns new date time in UTC
+# Add 4 weeks to current UTC datetime and returns new date time
 val = dt.parse("4w")
 
 # Add 1 hour to current date time
