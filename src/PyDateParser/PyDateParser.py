@@ -21,8 +21,10 @@ class PyDateParser:
         # min and max number of tokens
         self.__min_tokens = 1
         self.__max_tokens = 3
-
+        self.__default_operator = "+" \
+                                  ""
         self.__regexp_number = "(\d+)"
+        self.__regexp_number = "(\d+\.?\d*)"
         self.__regexp_timeframe = "([s|m|h|d|w])"
         self.__regexp_operators = "([+-])?"
         self.__operand_keywords = ["now", "yday", "tmrw", "dby", "dat"]
@@ -59,7 +61,7 @@ class PyDateParser:
         if relative_datetime is None:
             self.__relative_datetime = datetime.utcnow()
 
-        date_string = self.cleanup_string(date_string)
+        date_string = self.__cleanup_string(date_string)
 
         if self.__is_valid(date_string):
             tokens = self.__parse_tokens(date_string)
@@ -67,9 +69,13 @@ class PyDateParser:
         else:
             raise ValueError("Invalid date_string")
 
-    def cleanup_string(self, date_string):
+
+    def __cleanup_string(self, date_string):
         # remove spaces
-        return date_string.replace(" ", "")
+        if date_string:
+            return date_string.replace(" ", "")
+        else:
+            return date_string
 
     """
     basic validation of input parameters
@@ -80,10 +86,10 @@ class PyDateParser:
             raise ValueError("Empty value detected.")
 
         elif len(date_string) < self.__min_length:
-            raise ValueError("Invalid string length; should have atleast {} characters.".format(self.__minlength))
+            raise ValueError("Invalid string length; should have atleast {} characters.".format(self.__min_length))
 
         elif not re.match(self.__regexp_syntax, date_string) and \
-                        date_string not in self.__operand_keywords:
+                date_string not in self.__operand_keywords:
             raise ValueError("Invalid syntax.")
 
         return True
@@ -130,7 +136,7 @@ class PyDateParser:
     def __validate_operand(self, value):
 
         complex_operand_regexp = self.__regexp_number + self.__regexp_timeframe
-        if re.search(complex_operand_regexp, value):
+        if value and re.search(complex_operand_regexp, value):
             return True
         elif value in self.__operand_keywords:
             return True
@@ -140,59 +146,73 @@ class PyDateParser:
     def __parse_tokens(self, date_string):
         tokens = {}
 
+        operator_val = None
+        operand1 = None
+        operand2 = None
+
         # this matches string like -12s, 4h, 1w etc
         if re.search(self.__regexp_syntax, date_string):
+
+            # defaults to now, as the operation will be carried against the reference passed
+            operand1 = "now"
 
             # see if the + or - operator is present
             result = re.search(self.__regexp_operators, date_string)
 
-            # if string contains -12h or +12h get the operator
-            if result and (result.start() != 0 and result.end() != 0):
+            # if no sign value is passed result still will be NOT NULL
+            # result.end() != 0 is checked
+            if result and result.end() != 0:
                 # get the operator defined in the string
                 operator_start_pos = result.start()
                 operator_end_pos = result.end()
 
-                tokens["operator"] = date_string[operator_start_pos:operator_end_pos]
+                operator_val = date_string[operator_start_pos:operator_end_pos]
 
                 # read from where the operator char ends to all the way to end of string
                 operand2 = date_string[operator_end_pos:]
             else:
-                # if not operator specified default to +
-                tokens["operator"] = "+"
+                # as no oeprator is specified, set default value to "+"
+                operator_val = self.__default_operator
 
                 # as the input value doesn't contain operator consider entire input as second operand
                 operand2 = date_string
 
-            # set first operand always defaults to "now" as values passed like -12h, 1h, 3w
-            # will always be added or subtracted against current datetime
-            operand1 = "now"
-
-            if self.__validate_operand(operand1):
-                # get the first operand, 0 to position where the operator starts
-                tokens["operand1"] = self.__parse_operand(operand1)
-
-            if self.__validate_operand(operand2):
-                # get the second operand, position where the operator end till end of string
-                tokens["operand2"] = self.__parse_operand(operand2)
-
         # check for string like now, yday, tmrw etc
         elif date_string in self.__operand_keywords:
-
-            if self.__validate_operand(date_string):
-                tokens["operand1"] = self.__parse_operand(date_string)
+            operand1 = date_string
 
         # throw invalid token exception
         else:
             raise ValueError("Invalid format. Supported formats: {}".format(self.__sample_pattern))
 
+        # parse operand1
+        if operand1 and self.__validate_operand(operand1):
+            # get the first operand, 0 to position where the operator starts
+            tokens["operand1"] = self.__parse_operand(operand1)
+
+        # parse operand2
+        if operand2 and self.__validate_operand(operand2):
+            # get the second operand, position where the operator end till end of string
+            tokens["operand2"] = self.__parse_operand(operand2)
+
+        if operator_val:
+            tokens["operator"] = operator_val
+
         return tokens
 
-    # receives value of
-    # {'operator': '-', 'operand1': {'type': 'simple', 'value': 'now'}, 'operand2': {'type': 'complex', 'value': {'number': '1', 'timeframe': 'd'}}}
     def __process_tokens(self, tokens):
+
+        # tokens sample input
+        # {'operator': '-', 'operand1': {'type': 'simple', 'value': 'now'},
+        # 'operand2': \{'type': 'complex', 'value': {'number': '1', 'timeframe': 'd'}}}
 
         ops = {"+": operator.add,
                "-": operator.sub}
+
+        # means the token contain two operands and one operator
+        if "operator1" in tokens and "operator2" in tokens and \
+            not "operator" in tokens:
+            raise SyntaxError("Invalid syntax detected without operator")
 
         # means the token contain two operands and one operator
         if "operator" in tokens:
@@ -228,7 +248,7 @@ class PyDateParser:
 
         elif "type" in operand and operand["type"] == "complex":
 
-            val = int(operand["value"]["number"])
+            val = float(operand["value"]["number"])
 
             complex_vals = {
                 "s": timedelta(seconds=val),
